@@ -1,8 +1,7 @@
-import Control.Monad.Par
-import qualified Data.ByteString.Lazy.Char8 as L
+import qualified Data.ByteString.Char8 as L
 import qualified Data.ByteString.Lazy as LL
 import qualified Data.ByteString.Char8 as B
-
+import Control.DeepSeq
 import qualified Data.Map as Map
 import Data.Map (Map)
 
@@ -40,7 +39,7 @@ joinIndices = foldr (Map.unionWith Set.union) Map.empty
 
 mkIndex :: Int -> L.ByteString -> DocIndex
 mkIndex i s
-  = Map.fromListWith Set.union [ (B.concat (L.toChunks w), Set.singleton i)
+  = Map.fromListWith Set.union [ (w, Set.singleton i)
                                | w <- ws ]
   where ws = L.splitWith (not . isAlphaNum) s
 
