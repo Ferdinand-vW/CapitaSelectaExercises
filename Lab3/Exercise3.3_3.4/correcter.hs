@@ -9,10 +9,10 @@ main = do
     hSetBuffering stdout NoBuffering
     hSetEcho stdin False
     tvar <- newTVarIO ""
-    forkIO $ render tvar 0
-    forkIO $ correcter tvar
+    forkIO $ render tvar 0 --We start a render thread and a correcter thread, which are
+    forkIO $ correcter tvar --given a shared TVar
 
-    forever $ do
+    forever $ do --The main thread will write characters into the TVar
         c <- getChar
         atomically $ do
             s <- readTVar tvar
@@ -23,10 +23,9 @@ render tvar n = do
     input <- atomically $ readTVar tvar
     loop input n
     where
-        loop s i = do
-            print "t"
+        loop s i = do --Simply render the input
             renderString s i
-            next <- atomically $ do
+            next <- atomically $ do --Wait until the input has changed
                         s' <- readTVar tvar
                         if s == s'
                             then retry
@@ -46,8 +45,9 @@ correcter tvar = do
     loop input
     where
         loop s = do
-            print "t"
-            atomically $ writeTVar tvar $ map toUpper s
+            let correctedText = map toUpper s --My correcter is pretty simply, it just capitalizes input
+            atomically $ do
+                writeTVar tvar correctedText
             next <- atomically $ do
                 s' <- readTVar tvar
                 if s == s'
