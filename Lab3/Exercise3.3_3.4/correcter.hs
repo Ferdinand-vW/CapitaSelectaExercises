@@ -32,6 +32,8 @@ render tvar n = do
                             else return s'
             loop next (length s)
 
+--removes current output
+--and then writes the newoutput
 renderString :: String -> Int -> IO ()
 renderString s n = do
     putStr $ replicate n '\8'

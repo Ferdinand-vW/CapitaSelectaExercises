@@ -94,6 +94,7 @@ parZipWith strat f (x:xs) (y:ys) = do
     rseq c
     return (c : cs)
 
+--Now done using the Par monad
 parFoldChunk :: NFData a => Int -> (a -> a -> a) -> a -> [a] -> Par a
 parFoldChunk n f ntr xs = do
     as <- parFoldListChunk n f ntr xs
@@ -104,7 +105,7 @@ parFoldListChunk _ _ _ [] = return []
 parFoldListChunk n f ntr xs = do
     let (chunk,rest) = splitAt n xs
     nv <- new
-    fork $ put nv (foldr f ntr chunk)
+    fork $ put nv (foldr f ntr chunk) --The fold is done parallel
     ys <- parFoldListChunk n f ntr rest
     y <- get nv
     return (y : ys)

@@ -59,7 +59,7 @@ main = do
   ss <- mapM L.readFile fs
   let
       -- indices is a separate index for each (numbered) document
-      indices :: [DocIndex]
+      indices :: [DocIndex] --Use eval monad to do a parallel Zip, each rpar is forced to evaluate its argument
       indices = runEval $ parZipWith (rpar . force) mkIndex [0..] ss
 
       -- union the indices together
@@ -84,10 +84,11 @@ main = do
 
     putStrLn ("\n" ++ unlines files)
 
+--Parallel ZipWith implemented using Eval
 parZipWith :: Strategy c -> (a -> b -> c) -> [a] -> [b] -> Eval [c]
 parZipWith _ _ _ [] = return []
 parZipWith _ _ [] _ = return []
 parZipWith strat f (x:xs) (y:ys) = do
-    c <- strat (f x y)
-    cs <- parZipWith strat f xs ys
+    c <- strat (f x y) --Use the strategy on the first two arguments
+    cs <- parZipWith strat f xs ys --Do the rest in parallel
     return (c : cs)

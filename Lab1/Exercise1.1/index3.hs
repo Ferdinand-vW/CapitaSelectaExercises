@@ -36,6 +36,10 @@ type DocSet = IntSet
 -- A DocIndex maps a word to the set of documents that contain the word
 type DocIndex = Map Word DocSet
 
+
+--We can calculate joinIndices in parallel, because of the associativity of the fold
+--To do this I chunk the given list in partitions containing 50 elements.
+--These are then calculated parallel and a then a final fold is done
 joinIndices :: [DocIndex] -> DocIndex
 joinIndices = parFoldChunk rpar 50 (Map.unionWith Set.union) Map.empty
 
@@ -93,9 +97,11 @@ parZipWith strat f (x:xs) (y:ys) = do
     rseq c
     return (c : cs)
 
+--Does the final fold using Eval
 parFoldChunk :: Strategy a -> Int -> (a -> a -> a) -> a -> [a] -> a
 parFoldChunk strat num f ntr xs = foldr f ntr $ parFoldListChunk strat num f ntr xs
-      
+
+--Divide up the list in chunks and concatenate the results
 parFoldListChunk :: Strategy a -> Int -> (a -> a -> a) -> a -> [a] -> [a]
 parFoldListChunk _ _ _ _ [] = []
 parFoldListChunk strat' n g s xs =
@@ -103,5 +109,6 @@ parFoldListChunk strat' n g s xs =
         in
           parFold strat' g s chunk : parFoldListChunk strat' n g s rest
 
+--Run the fold parallel
 parFold :: Strategy a -> (a -> a -> a) -> a -> [a] -> a
 parFold strat f s xs = strat `withStrategy` foldr f s xs

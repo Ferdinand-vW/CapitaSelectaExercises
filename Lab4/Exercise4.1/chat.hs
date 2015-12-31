@@ -220,7 +220,7 @@ talk handle server@Server{..} = do
     hPutStrLn handle "What is your name?"
     mname <- timeout 20000000 $ hGetLine handle --We wait 20s before timing out
     case mname of
-        Nothing -> do --If we didn receive anything, then we close the handle.
+        Nothing -> do --If we didnt receive anything, then we close the handle.
             hPutStrLn handle "20 seconds have passed. You have timed-out."
             hClose handle
         Just name ->
@@ -297,7 +297,7 @@ runClient serv@Server{..} client@Client{..} = do
                 continue <- handleMessage serv client msg
                 when continue server
   
-  fillClientChan = forever $ do --Level over any messages in the broadcastChan to the sendChan of the same client
+  fillClientChan = forever $ do --hand over any messages in the broadcastChan to the sendChan of the same client
     atomically $ do
         msg <- readTChan clientBroadCastChan
         writeTChan clientSendChan msg
