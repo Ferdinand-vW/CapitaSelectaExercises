@@ -1,0 +1,36 @@
+{-# LANGUAGE TemplateHaskell #-}
+
+module Database (
+       Database,
+       Key, Value,
+       createDB,
+       get, set,
+       rcdata,
+  ) where
+
+import Control.Distributed.Process
+import Control.Distributed.Process.Closure
+import Control.Distributed.Process.Serializable
+
+import qualified Data.Map as Map
+import Data.Map (Map)
+import Data.Char
+import Data.List
+import Text.Printf
+import Control.Monad
+import Control.Monad.Loops
+import Control.Concurrent.STM
+import Worker
+import Request
+
+type Database = ProcessId
+
+createDB :: Process Database
+createDB = do
+    peers <- newEmptyMVar
+    spawnLocal $ acceptPeers peers
+    
+
+
+rcdata :: RemoteTable -> RemoteTable
+rcdata = Worker.__remoteTable
