@@ -59,7 +59,7 @@ main = do
   ss <- mapM L.readFile fs
   let
       -- indices is a separate index for each (numbered) document
-      indices :: [DocIndex]
+      indices :: [DocIndex] --Now parZipWith using the Par Monad
       indices = runPar $ parZipWith mkIndex [0..] ss
 
       -- union the indices together
@@ -84,12 +84,13 @@ main = do
 
     putStrLn ("\n" ++ unlines files)
 
+--Quite similar to the Eval version
 parZipWith :: NFData c => (a -> b -> c) -> [a] -> [b] -> Par [c]
 parZipWith _ _ [] = return []
 parZipWith _ [] _ = return []
 parZipWith f (x:xs) (y:ys) = do
-    nv <- new
-    fork $ put nv $ f x y
+    nv <- new --Create a new IVar that will hold the result of the first calculation
+    fork $ put nv $ f x y --Do this calculation parallel
     cs <- parZipWith f xs ys
-    c' <- get nv
+    c' <- get nv --Wait for the calculation to be finished
     return (c':cs)

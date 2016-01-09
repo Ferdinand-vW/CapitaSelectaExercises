@@ -16,5 +16,5 @@ writeValues chan n = do
 
 readValues :: BoundedChan Int -> IO ()
 readValues chan = do
-    let !n = atomically $ readBoundedChan chan
+    let !n = atomically $ readBoundedChan chan --We have to force the evaluation of the read value
     readValues chan

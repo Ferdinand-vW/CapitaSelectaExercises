@@ -18,10 +18,11 @@ main = do
   fromLang <- Bing.detectLanguage text
   printf "\"%s\" appears to be in language \"%s\"\n" text fromLang
 
+--Use async to do the translations concurrently
   translations <- forM (filter (/= fromLang) languages) $ \toLang -> async $ do
      str <- Bing.translateText text fromLang toLang
      printf "%s: %s\n" toLang str
-     
+--Wait for all the results to be finished
   results <- mapM wait translations
   print "end"
 

@@ -1,0 +1,1 @@
+This repository contains my answers to the exercises that accompany the book Parallel and Concurrent Programming in Haskell by Simon Marlow

@@ -1,7 +1,12 @@
 dist
 cabal-dev
+*
+!*/
+!*.*
 *.o
+*~
 *.hi
+*.eventlog
 *.chi
 *.chs.h
 *.dyn_o

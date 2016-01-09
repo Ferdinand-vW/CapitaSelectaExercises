@@ -14,12 +14,13 @@ import Data.Either
 main = do
   [text] <- fmap (fmap (B.unpack . UTF8.fromString)) getArgs
 
+--Also do the downloading and detection concurrently using async
   languages <- async Bing.getLanguages
 
   fromLang <- async $ Bing.detectLanguage text
 
   l' <- wait languages
-  fl' <- wait fromLang
+  fl' <- wait fromLang --Wait for the results, before we can continue
   printf "\"%s\" appears to be in language \"%s\"\n" text fl'
 
   translations <- forM (filter (/= fl') l') $ \toLang -> async $ do
