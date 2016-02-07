@@ -1,0 +1,2 @@
+cabal install
+cabal build
